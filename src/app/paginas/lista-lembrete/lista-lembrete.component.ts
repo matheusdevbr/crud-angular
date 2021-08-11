@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Lembrete } from 'src/app/interfaces/lembrete';
+import { Lembrete } from '../../interfaces/lembrete';
 import { LembreteService } from 'src/app/services/lembrete.service';
 import { ErrorMsgComponent } from 'src/app/compartilhado/error-msg/error-msg.component';
 
@@ -9,10 +9,31 @@ import { ErrorMsgComponent } from 'src/app/compartilhado/error-msg/error-msg.com
   styleUrls: ['./lista-lembrete.component.css']
 })
 export class ListaLembreteComponent implements OnInit {
+  public lembretes!: Lembrete[];
+  @ViewChild(ErrorMsgComponent) errorMsgComponent!: ErrorMsgComponent;
+  
+  constructor(private lembreteService: LembreteService) { }
 
-  constructor() { }
-
-  ngOnInit(): void {
-  }
+  ngOnInit() {
+    this.getListaLembretes();
+  } 
+    
+    getListaLembretes() {
+      this.lembreteService.getListaLembretes()
+      .subscribe((lembretes: Lembrete[]) => {
+        this.lembretes = lembretes;
+      }, () => {this.errorMsgComponent.setError('Falha ao buscar lembretes.'); });
+    }
+  
+    deletaLembrete(id: number) {
+      this.lembreteService.deletaLembrete(id)
+        .subscribe(() => {
+          this.getListaLembretes();
+        }, () => { this.errorMsgComponent.setError('Falha ao deletar lembrete.'); });
+    }
+  
+    existemLembretes(): boolean {
+      return this.lembretes && this.lembretes.length > 0;
+    }
 
 }
